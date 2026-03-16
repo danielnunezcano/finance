@@ -1,7 +1,7 @@
-package com.finance.service;
+package com.nunez.finance.service;
 
-import com.finance.model.Transaction;
-import com.finance.repository.TransactionRepository;
+import com.nunez.finance.model.Transaction;
+import com.nunez.finance.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

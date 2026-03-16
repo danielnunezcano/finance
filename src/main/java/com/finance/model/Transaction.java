@@ -1,4 +1,4 @@
-package com.finance.model;
+package com.nunez.finance.model;
 
 import jakarta.persistence.*; // Using jakarta.persistence for Spring Boot 3+
 import java.math.BigDecimal;

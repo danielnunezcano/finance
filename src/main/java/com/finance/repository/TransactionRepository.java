@@ -1,6 +1,6 @@
-package com.finance.repository;
+package com.nunez.finance.repository;
 
-import com.finance.model.Transaction;
+import com.nunez.finance.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

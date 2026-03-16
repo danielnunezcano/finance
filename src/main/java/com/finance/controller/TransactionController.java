@@ -1,7 +1,7 @@
-package com.finance.controller;
+package com.nunez.finance.controller;
 
-import com.finance.model.Transaction;
-import com.finance.service.TransactionService;
+import com.nunez.finance.model.Transaction;
+import com.nunez.finance.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
