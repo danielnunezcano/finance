@@ -1,18 +1,29 @@
 package com.finance.model;
 
+import jakarta.persistence.*; // Using jakarta.persistence for Spring Boot 3+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Entity // Marks this class as a JPA entity
+@Table(name = "transactions") // Specifies the table name in the database
 public class Transaction {
-    private String id;
+
+    @Id // Marks this field as the primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generates ID
+    private String id; // Changed to String to match controller's path variable and potential UUIDs
+
     private String description;
-    private double amount;
+
+    @Column(precision = 10, scale = 2) // Specify precision and scale for currency
+    private BigDecimal amount;
+
     private LocalDate date;
 
     // Constructors
     public Transaction() {
     }
 
-    public Transaction(String id, String description, double amount, LocalDate date) {
+    public Transaction(String id, String description, BigDecimal amount, LocalDate date) {
         this.id = id;
         this.description = description;
         this.amount = amount;
@@ -36,11 +47,11 @@ public class Transaction {
         this.description = description;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
