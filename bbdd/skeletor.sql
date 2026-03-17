@@ -43,3 +43,33 @@ CREATE TABLE IF NOT EXISTS shared_expenses (
 -- Performance Indexes
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
 CREATE INDEX IF NOT EXISTS idx_transactions_account ON transactions(account_id);
+
+-- New tables for Users and Roles
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL, -- Store encrypted password. NOTE: For real apps, encrypt this password.
+    email VARCHAR(255) UNIQUE,
+    enabled BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS roles (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE -- e.g., 'ROLE_USER', 'ROLE_ADMIN'
+);
+
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Insert a default role and user for testing
+-- IMPORTANT: The password 'password' MUST be hashed using BCryptPasswordEncoder in a real application.
+-- For demonstration purposes, a placeholder is used here. In a production environment,
+-- this would be handled by a secure password hashing mechanism.
+INSERT INTO roles (name) VALUES ('ROLE_USER');
+INSERT INTO users (username, password_hash, email, enabled) VALUES ('testuser', 'encrypted_password_placeholder', 'testuser@example.com', TRUE); -- Replace 'encrypted_password_placeholder' with a bcrypt hash
+INSERT INTO user_roles (user_id, role_id) VALUES (1, 1); -- Assuming user_id=1 and role_id=1 for the first inserted user/role. Adjust if necessary.
