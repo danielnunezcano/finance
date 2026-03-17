@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,9 +35,10 @@ public class User implements UserDetails {
 
     private boolean enabled = true;
 
-    @ManyToMany(fetch = FetchType.EAGER) // EAGER fetch for roles
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
+        schema = "public",
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
@@ -71,7 +72,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.enabled; // Use the 'enabled' field
+        return true; // Sin lógica de bloqueo por intentos fallidos implementada
     }
 
     @Override

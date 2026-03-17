@@ -92,9 +92,15 @@ CREATE TABLE IF NOT EXISTS user_roles (
 );
 
 -- Insert a default role and user for testing
--- IMPORTANT: The password 'password' MUST be hashed using BCryptPasswordEncoder in a real application.
--- For demonstration purposes, a placeholder is used here. In a production environment,
--- this would be handled by a secure password hashing mechanism.
-INSERT INTO roles (name) VALUES ('ROLE_USER');
-INSERT INTO users (username, password_hash, email, enabled) VALUES ('testuser', 'encrypted_password_placeholder', 'testuser@example.com', TRUE); -- Replace 'encrypted_password_placeholder' with a bcrypt hash
-INSERT INTO user_roles (user_id, role_id) VALUES (1, 1); -- Assuming user_id=1 and role_id=1 for the first inserted user/role. Adjust if necessary.
+-- Contraseña: admin123  →  Hash generado con BCryptPasswordEncoder (strength=12)
+INSERT INTO roles (name) VALUES ('ROLE_USER') ON CONFLICT (name) DO NOTHING;
+INSERT INTO users (username, password_hash, email, enabled)
+    VALUES ('testuser', '$2b$12$bDnHsU1k3WxwJ6YiMYP45OrqGRLCtjBw8VBuw/UYHXGJD3J3WCSC.', 'testuser@example.com', TRUE)
+    ON CONFLICT (username) DO UPDATE SET password_hash = EXCLUDED.password_hash;
+INSERT INTO user_roles (user_id, role_id)
+    SELECT u.id, r.id FROM users u, roles r
+    WHERE u.username = 'testuser' AND r.name = 'ROLE_USER'
+    ON CONFLICT DO NOTHING;
+
+-- Para actualizar la contraseña de un usuario existente en producción:
+-- UPDATE users SET password_hash = '<nuevo_hash_bcrypt>' WHERE username = 'testuser';
