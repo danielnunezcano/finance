@@ -1,0 +1,38 @@
+# Java Development Rules (Hexagonal Architecture)
+
+## 1. Entorno y Herramientas (CRÍTICO)
+- Gestor de versiones: Se usa asdf.
+- Invocación de comandos: Para cualquier comando de mvn o java, DEBES cargar el entorno primero: . $HOME/.asdf/asdf.sh && [comando].
+- Java Version: Siempre usar Java 21. Aprovechar record, sealed classes y virtual threads si es necesario.
+- Build System: Maven (multi-módulo o monorepo según estructura).
+- Base de Datos: H2 en memoria para desarrollo local.
+
+## 2. Arquitectura Hexagonal (Puertos y Adaptadores)
+El proyecto se divide en tres capas lógicas para aislar el dominio:
+
+### A. Capa de Dominio (domain)
+- Zero Dependencies: No puede depender de frameworks externos (ni Spring, ni Hibernate). Solo Lombok y validaciones básicas.
+- Modelos: Usar record + @Builder para entidades inmutables.
+- Puertos de Salida: Interfaces que definen qué necesita el dominio (ej. TransactionRepository).
+- Servicios de Aplicación: Implementan los casos de uso. Usar @Service de Spring solo en la implementación, no en la interfaz.
+
+### B. Capa de Infraestructura (infrastructure)
+- Adaptadores de Entrada: Controladores REST (@RestController). No usar lógica de negocio aquí.
+- Adaptadores de Salida: Implementaciones de Repositorios (Spring Data JPA) y Clientes API.
+- Mapeo: Usar MapStruct para convertir entre Entidades de Base de Datos (Db) y Entidades de Dominio.
+
+### C. Capa de Arranque (boot / app)
+- Contiene la clase @SpringBootApplication y la configuración de beans.
+
+## 3. Convenciones de Código
+- Inyección de Dependencias: Siempre por constructor usando @RequiredArgsConstructor de Lombok. Prohibido usar @Autowired en campos.
+- Lombok: Usar @Slf4j para logs, @Builder para creación de objetos.
+- Mocks: En Java 21 / Spring Boot 3.4+, usar siempre @MockitoBean en lugar de @MockBean.
+- Testing:
+  - Unitarios: JUnit 5 + Mockito + AssertJ.
+  - Estructura: // Given, // When, // Then.
+  - Datos de prueba: Usar Instancio para generar objetos aleatorios.
+
+## 4. Gestión de Git
+- .gitignore: Nunca subir la carpeta target/.
+- Commits: Usar formato convencional (feat:, fix:, chore:, docs:).
