@@ -1,65 +1,38 @@
 package com.nunez.finance.model;
 
-import jakarta.persistence.*; // Using jakarta.persistence for Spring Boot 3+
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity // Marks this class as a JPA entity
-@Table(name = "transactions") // Specifies the table name in the database
+@Entity
+@Table(name = "transactions")
+@Getter // Usamos Lombok para limpiar el código según tus reglas
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaction {
 
-    @Id // Marks this field as the primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generates ID
-    private String id; // Changed to String to match controller's path variable and potential UUIDs
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id; // Long mapea perfectamente a bigserial/bigint
 
-    private String description;
+	@Column(nullable = false)
+	private LocalDate date;
 
-    @Column(precision = 10, scale = 2) // Specify precision and scale for currency
-    private BigDecimal amount;
+	@Column(nullable = false, precision = 15, scale = 2) // Ajustado a numeric(15, 2) de tu SQL
+	private BigDecimal amount;
 
-    private LocalDate date;
+	private String description;
 
-    // Constructors
-    public Transaction() {
-    }
+	@Column(name = "account_id", nullable = false)
+	private Long accountId;
 
-    public Transaction(String id, String description, BigDecimal amount, LocalDate date) {
-        this.id = id;
-        this.description = description;
-        this.amount = amount;
-        this.date = date;
-    }
+	@Column(name = "category_id", nullable = false)
+	private Long categoryId;
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+	@Column(name = "destination_account_id")
+	private Long destinationAccountId;
 }

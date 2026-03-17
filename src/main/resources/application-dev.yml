@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${BBDD_URL}}/finanzas_dev
+    url: jdbc:postgresql://192.168.0.150:5433/postgres
     username: root
-    password: ${BBDDD_PASSWORD}}
+    password: 69eacb44
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

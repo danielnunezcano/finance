@@ -2,6 +2,6 @@ package com.nunez.finance.domain;
 
 import java.util.List;
 
-public interface PrimeNumberService {
+public interface PrimeNumberUseCase {
     List<Integer> getFirstNPrimes(int n);
 }
