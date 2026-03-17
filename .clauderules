@@ -1,38 +1,27 @@
-# Java Development Rules (Hexagonal Architecture)
+# Java Hexagonal Rules (Standard Spring Boot)
 
-## 1. Entorno y Herramientas (CRÍTICO)
-- Gestor de versiones: Se usa asdf.
-- Invocación de comandos: Para cualquier comando de mvn o java, DEBES cargar el entorno primero: . $HOME/.asdf/asdf.sh && [comando].
-- Java Version: Siempre usar Java 21. Aprovechar record, sealed classes y virtual threads si es necesario.
-- Build System: Maven (multi-módulo o monorepo según estructura).
-- Base de Datos: H2 en memoria para desarrollo local.
+## 1. Entorno (CRÍTICO)
+- **Versión**: Java 21 (usar `record`, `sealed classes` y `virtual threads`).
+- **Gestión**: Siempre cargar el entorno con `. $HOME/.asdf/asdf.sh` antes de ejecutar `mvn`.
+- **Base de Datos**: PostgreSQL para prod, H2 para dev.
 
-## 2. Arquitectura Hexagonal (Puertos y Adaptadores)
-El proyecto se divide en tres capas lógicas para aislar el dominio:
-
-### A. Capa de Dominio (domain)
-- Zero Dependencies: No puede depender de frameworks externos (ni Spring, ni Hibernate). Solo Lombok y validaciones básicas.
-- Modelos: Usar record + @Builder para entidades inmutables.
-- Puertos de Salida: Interfaces que definen qué necesita el dominio (ej. TransactionRepository).
-- Servicios de Aplicación: Implementan los casos de uso. Usar @Service de Spring solo en la implementación, no en la interfaz.
-
-### B. Capa de Infraestructura (infrastructure)
-- Adaptadores de Entrada: Controladores REST (@RestController). No usar lógica de negocio aquí.
-- Adaptadores de Salida: Implementaciones de Repositorios (Spring Data JPA) y Clientes API.
-- Mapeo: Usar MapStruct para convertir entre Entidades de Base de Datos (Db) y Entidades de Dominio.
-
-### C. Capa de Arranque (boot / app)
-- Contiene la clase @SpringBootApplication y la configuración de beans.
+## 2. Estructura de Capas (Hexagonal)
+- **Domain**: Lógica pura, sin dependencias de infraestructura (Spring/JPA).
+    - `model/entity/`: Entidades inmutables usando `record` + `@Builder`.
+    - `port/output/`: Interfaces de casos de uso (Ej: `FindTransactionsUseCase`).
+    - `port/output/adapter/`: Interfaces para persistencia o clientes externos.
+- **Infrastructure**: Implementaciones técnicas.
+    - `input/rest/`: Controladores `@RestController` que implementan interfaces OpenAPI (si aplica).
+    - `output/persistence/`: Repositorios `JpaRepository` y adaptadores de datos.
+- **Application Services**: Implementan exactamente UNA interfaz de caso de uso.
 
 ## 3. Convenciones de Código
-- Inyección de Dependencias: Siempre por constructor usando @RequiredArgsConstructor de Lombok. Prohibido usar @Autowired en campos.
-- Lombok: Usar @Slf4j para logs, @Builder para creación de objetos.
-- Mocks: En Java 21 / Spring Boot 3.4+, usar siempre @MockitoBean en lugar de @MockBean.
-- Testing:
-  - Unitarios: JUnit 5 + Mockito + AssertJ.
-  - Estructura: // Given, // When, // Then.
-  - Datos de prueba: Usar Instancio para generar objetos aleatorios.
+- **DI**: Inyección por constructor con `@RequiredArgsConstructor` de Lombok; prohibido `@Autowired` en campos.
+- **Mapeo**: Usar MapStruct (`componentModel = "spring"`) para convertir entre Entidades DB, Dominio y DTOs.
+- **Logs**: Usar `@Slf4j` y anotar métodos públicos con `@LogTracing` y `@LogExecutionTiming` para observabilidad.
+- **Mocks**: En Java 21/Spring Boot 3.4+, usar `@MockitoBean` en lugar de `@MockBean`.
 
-## 4. Gestión de Git
-- .gitignore: Nunca subir la carpeta target/.
-- Commits: Usar formato convencional (feat:, fix:, chore:, docs:).
+## 4. Testing
+- **Unitarios**: JUnit 5 + Mockito + AssertJ. Estructura `// Given`, `// When`, `// Then`.
+- **Datos**: Usar `Instancio.create(Type.class)` para generar datos de prueba aleatorios.
+- **Integración**: Usar `RestAssured` para verificar los endpoints reales.
