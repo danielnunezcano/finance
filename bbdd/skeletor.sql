@@ -1,5 +1,5 @@
 -- 1. Accounts Table (Savings, Checking, Cash, Investment)
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
                           id BIGSERIAL PRIMARY KEY,
                           name VARCHAR(255) NOT NULL UNIQUE,
                           type VARCHAR(100), -- 'Savings', 'Checking', 'Cash', 'Investment'
@@ -7,7 +7,7 @@ CREATE TABLE accounts (
 );
 
 -- 2. Categories Table (Groceries, Utilities, Capex...)
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
                             id BIGSERIAL PRIMARY KEY,
                             name VARCHAR(255) NOT NULL,
                             type VARCHAR(100), -- 'Income', 'Expense'
@@ -15,7 +15,7 @@ CREATE TABLE categories (
 );
 
 -- 3. Transactions Table (Core movements)
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
                               id BIGSERIAL PRIMARY KEY,
                               date DATE NOT NULL,
                               amount DECIMAL(15, 2) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE transactions (
 );
 
 -- 4. Shared Expenses Table (The joint fund)
-CREATE TABLE shared_expenses (
+CREATE TABLE IF NOT EXISTS shared_expenses (
                                  id BIGSERIAL PRIMARY KEY,
                                  transaction_id BIGINT NOT NULL UNIQUE,
                                  paid_by VARCHAR(100) NOT NULL, -- 'Daniel' or 'Vanessa'
@@ -41,5 +41,5 @@ CREATE TABLE shared_expenses (
 );
 
 -- Performance Indexes
-CREATE INDEX idx_transactions_date ON transactions(date);
-CREATE INDEX idx_transactions_account ON transactions(account_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
+CREATE INDEX IF NOT EXISTS idx_transactions_account ON transactions(account_id);
