@@ -11,8 +11,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -28,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(BCryptPasswordEncoder passwordEncoder) {
-        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider(this.userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
     }
@@ -36,34 +39,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless API, or configure properly
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                // Public endpoints (e.g., login, registration - not implemented yet)
                 .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
-                // Protected endpoints
-                .requestMatchers("/api/transactions/**", "/api/users/**").authenticated()
-                // Allow access to H2 console for development/testing if needed
-                .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated() // All other requests require authentication
+                .requestMatchers("/api/v1/transactions/**", "/api/users/**").authenticated()
+                .anyRequest().authenticated()
             )
-            // Basic Authentication for simplicity, can be replaced with JWT or form login
-            .httpBasic(httpBasic -> {
-                // Configure basic auth here if preferred, or remove if using only JWT/form login
-            })
-            // Form Login for manual login - useful for browser access
-            .formLogin(formLogin -> formLogin
-                .loginPage("/login") // Custom login page, not implemented yet
-                .permitAll()
-            )
-            // Add custom authentication filter here if using JWT or other methods
-            // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            ;
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-    
-    // Optional: Bean for WebSecurityCustomizer to ignore certain paths from security checks (e.g., static resources)
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/v3/api-docs/**", "/configuration/ui", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/");
+        return web -> web.ignoring().requestMatchers(
+                "/v3/api-docs/**",
+                "/configuration/ui",
+                "/swagger-resources/**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/webjars/**",
+                "/"
+        );
     }
 }

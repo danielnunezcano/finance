@@ -15,3 +15,8 @@ spring:
         default_schema: public
 server:
   port: 8085
+
+jwt:
+  # Minimo 32 caracteres para HS256
+  secret: "finance-dev-secret-key-change-this-at-least-32-chars"
+  expiration-ms: 3600000
