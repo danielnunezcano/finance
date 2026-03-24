@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${BBDD_URL}}/finanzas_dev
+    url: jdbc:postgresql://192.168.0.150:5433/finanzas_dev?currentSchema=public
     username: root
-    password: ${BBDDD_PASSWORD}}
+    password: 69eacb44
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -12,5 +12,11 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
 server:
   port: 8085
+
+jwt:
+  # Minimo 32 caracteres para HS256
+  secret: "finance-dev-secret-key-change-this-at-least-32-chars"
+  expiration-ms: 3600000

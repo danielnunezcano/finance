@@ -1,0 +1,27 @@
+# Java Hexagonal Rules (Standard Spring Boot)
+
+## 1. Entorno (CRÍTICO)
+- **Versión**: Java 21 (usar `record`, `sealed classes` y `virtual threads`).
+- **Gestión**: Siempre cargar el entorno con `. $HOME/.asdf/asdf.sh` antes de ejecutar `mvn`.
+- **Base de Datos**: PostgreSQL para prod, H2 para dev.
+
+## 2. Estructura de Capas (Hexagonal)
+- **Domain**: Lógica pura, sin dependencias de infraestructura (Spring/JPA).
+    - `model/entity/`: Entidades inmutables usando `record` + `@Builder`.
+    - `port/output/`: Interfaces de casos de uso (Ej: `FindTransactionsUseCase`).
+    - `port/output/adapter/`: Interfaces para persistencia o clientes externos.
+- **Infrastructure**: Implementaciones técnicas.
+    - `input/rest/`: Controladores `@RestController` que implementan interfaces OpenAPI (si aplica).
+    - `output/persistence/`: Repositorios `JpaRepository` y adaptadores de datos.
+- **Application Services**: Implementan exactamente UNA interfaz de caso de uso.
+
+## 3. Convenciones de Código
+- **DI**: Inyección por constructor con `@RequiredArgsConstructor` de Lombok; prohibido `@Autowired` en campos.
+- **Mapeo**: Usar MapStruct (`componentModel = "spring"`) para convertir entre Entidades DB, Dominio y DTOs.
+- **Logs**: Usar `@Slf4j` y anotar métodos públicos con `@LogTracing` y `@LogExecutionTiming` para observabilidad.
+- **Mocks**: En Java 21/Spring Boot 3.4+, usar `@MockitoBean` en lugar de `@MockBean`.
+
+## 4. Testing
+- **Unitarios**: JUnit 5 + Mockito + AssertJ. Estructura `// Given`, `// When`, `// Then`.
+- **Datos**: Usar `Instancio.create(Type.class)` para generar datos de prueba aleatorios.
+- **Integración**: Usar `RestAssured` para verificar los endpoints reales.
